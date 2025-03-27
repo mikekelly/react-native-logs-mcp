@@ -1,0 +1,57 @@
+{
+  "name": "@twodoorsdev/react-native-debugger-mcp",
+  "description": "An MCP server that connects to your React Native application debugger",
+  "version": "0.0.1",
+  "author": {
+    "name": "Two Doors Dev",
+    "email": "hello@twodoors.dev",
+    "url": "https://twodoors.dev",
+    "github": "https://github.com/twodoorsdev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/twodoorsdev/react-native-debugger-mcp.git"
+  },
+  "module": "main.ts",
+  "type": "module",
+  "bin": {
+    "react-native-debugger-mcp": "dist/main.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "prebuild": "bun scripts/prebuild.ts",
+    "build": "bun build ./src/main.ts --outdir dist --target node && chmod +x dist/main.js",
+    "start": "bun src/main.ts",
+    "test": "bun test",
+    "clean": "rm -rf dist",
+    "inspect": "bunx @modelcontextprotocol/inspector bun src/main.ts",
+    "prepublishOnly": "npm run build",
+    "lint": "bunx biome lint --write src",
+    "format": "bunx biome format --write src",
+    "check": "bunx biome check --write src",
+    "release": "standard-version --sign",
+    "release:minor": "standard-version --sign --release-as minor",
+    "release:major": "standard-version --sign --release-as major",
+    "release:patch": "standard-version --sign --release-as patch",
+    "create-tool": "bun scripts/create-tool.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "latest",
+    "standard-version": "^9.5.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@expo/cli": "^0.22.21",
+    "@modelcontextprotocol/sdk": "^1.1.1",
+    "@types/json-schema": "^7.0.15",
+    "@types/ws": "^8.18.0",
+    "pretty-js-log": "^1.1.1",
+    "ws": "^8.18.1",
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.24.1"
+  }
+}
