@@ -1,7 +1,7 @@
 {
   "name": "@twodoorsdev/react-native-debugger-mcp",
   "description": "An MCP server that connects to your React Native application debugger",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": {
     "name": "Two Doors Dev",
     "email": "hello@twodoors.dev",
@@ -18,7 +18,9 @@
   "bin": {
     "react-native-debugger-mcp": "dist/main.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prebuild": "bun scripts/prebuild.ts",
     "build": "bun build ./src/main.ts --outdir dist --target node && chmod +x dist/main.js",
