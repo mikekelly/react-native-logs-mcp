@@ -2,6 +2,10 @@
 
 An MCP server that connects to your React Native application debugger.
 
+## ✨ Key Features
+
+- Can retrieve console logs from Metro
+
 ## 🚀 Quick Start
 
 Add the following to your Claude Desktop/Cursor MCP config:
@@ -16,10 +20,3 @@ Add the following to your Claude Desktop/Cursor MCP config:
   }
 }
 ```
-
-## ✨ Key Features
-
-- Can retrieve console logs from Metro
-
-## Installing from npm (after publishing)
-
