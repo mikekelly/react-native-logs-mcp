@@ -6,15 +6,102 @@ import {
 	readConsoleLogsFromAppSchema,
 } from './schema';
 
+// Chrome DevTools Protocol interfaces
+interface CallFrame {
+	functionName: string;
+	scriptId: string;
+	url: string;
+	lineNumber: number;
+	columnNumber: number;
+}
+
+interface StackTrace {
+	description?: string;
+	callFrames: CallFrame[];
+	parent?: StackTrace;
+}
+
+interface RemoteObject {
+	type:
+		| 'object'
+		| 'function'
+		| 'undefined'
+		| 'string'
+		| 'number'
+		| 'boolean'
+		| 'symbol'
+		| 'bigint';
+	subtype?:
+		| 'array'
+		| 'null'
+		| 'node'
+		| 'regexp'
+		| 'date'
+		| 'map'
+		| 'set'
+		| 'weakmap'
+		| 'weakset'
+		| 'iterator'
+		| 'generator'
+		| 'error'
+		| 'proxy'
+		| 'promise'
+		| 'typedarray'
+		| 'arraybuffer'
+		| 'dataview';
+	className?: string;
+	value?: any;
+	unserializableValue?: string;
+	description?: string;
+	objectId?: string;
+}
+
 interface ConsoleMessage {
 	type: string;
 	text: string;
 	level: string;
 	timestamp: number;
+	args?: RemoteObject[]; // Raw arguments for advanced processing
+	stackTrace?: StackTrace; // Stack trace if available
 }
 
 const UNSUPPORTED_CLIENT_MESSAGE =
 	'You are using an unsupported debugging client. Use the Dev Menu in your app (or type `j` in the Metro terminal) to open React Native DevTools.';
+
+/**
+ * Formats a Chrome DevTools Protocol RemoteObject into a readable string representation.
+ * This function handles the full range of console argument types including multi-line strings,
+ * objects, arrays, and complex data structures.
+ */
+export function formatConsoleArgument(arg: RemoteObject): string {
+	// Handle null and undefined explicitly
+	if (arg.type === 'undefined') {
+		return 'undefined';
+	}
+	if (arg.subtype === 'null') {
+		return 'null';
+	}
+
+	// Use description for complex objects and formatted representations
+	// The description field contains the complete, properly formatted representation
+	// including multi-line strings, object structures, arrays, etc.
+	if (arg.description !== undefined) {
+		return arg.description;
+	}
+
+	// Fall back to value for simple primitives
+	if (arg.value !== undefined) {
+		return String(arg.value);
+	}
+
+	// Handle unserializable values (NaN, Infinity, etc.)
+	if (arg.unserializableValue !== undefined) {
+		return arg.unserializableValue;
+	}
+
+	// Final fallback - show the type
+	return `[${arg.type}${arg.subtype ? ` ${arg.subtype}` : ''}]`;
+}
 
 export const readConsoleLogsFromApp = async (
 	app: { id: string; description: string; webSocketDebuggerUrl: string },
@@ -26,7 +113,6 @@ export const readConsoleLogsFromApp = async (
 		let messageId = 1;
 
 		ws.on('open', () => {
-
 			// Enable runtime
 			const enableRuntimeMessage = {
 				id: messageId++,
@@ -41,9 +127,9 @@ export const readConsoleLogsFromApp = async (
 
 				// Handle console messages
 				if (message.method === 'Runtime.consoleAPICalled') {
-					const args = message.params.args || [];
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-					const text = args.map((arg: any) => arg.value || '').join(' ');
+					const args: RemoteObject[] = message.params.args || [];
+					// Use enhanced formatting to capture full console output including multi-line content
+					const text = args.map(formatConsoleArgument).join(' ');
 
 					// Skip the unsupported client message
 					if (text.includes(UNSUPPORTED_CLIENT_MESSAGE)) {
@@ -55,6 +141,8 @@ export const readConsoleLogsFromApp = async (
 						text,
 						level: message.params.type || 'log',
 						timestamp: Date.now(),
+						args, // Store raw arguments for potential future use
+						stackTrace: message.params.stackTrace, // Include stack trace if available
 					};
 					logs.push(logMessage);
 
@@ -64,7 +152,7 @@ export const readConsoleLogsFromApp = async (
 					}
 				}
 			} catch (error) {
-        // @TODO Handle this better
+				// @TODO Handle this better
 				// console.error('Error parsing WebSocket message:', error);
 			}
 		});
