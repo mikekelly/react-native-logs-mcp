@@ -1,8 +1,8 @@
-# React Native Debugger MCP
+# React Native Logs MCP
 
 An MCP server that connects to your React Native application debugger via the Chrome DevTools Protocol.
 
-**This fork** is optimized to minimize AI context usage by reducing verbose output. Console logs are returned as plain text rather than JSON, and stack traces are only included for errors and warnings.
+**This is a fork of [twodoorsdev/react-native-debugger-mcp](https://github.com/twodoorsdev/react-native-debugger-mcp)** optimized to minimize AI context usage by reducing verbose output. Console logs are returned as plain text rather than JSON, and stack traces are only included for errors and warnings.
 
 ## ✨ Key Features
 
@@ -29,9 +29,9 @@ Add the following to your Claude Desktop/Cursor MCP config:
 ```json
 {
 	"mcpServers": {
-		"react-native-debugger-mcp": {
+		"react-native-logs-mcp": {
 			"command": "npx",
-			"args": ["-y", "github:mikekelly/react-native-debugger-mcp"]
+			"args": ["-y", "@realmikekelly/react-native-logs-mcp"]
 		}
 	}
 }

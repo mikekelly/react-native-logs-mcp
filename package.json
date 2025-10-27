@@ -1,22 +1,21 @@
 {
-  "name": "@twodoorsdev/react-native-debugger-mcp",
-  "description": "An MCP server that connects to your React Native application debugger",
-  "version": "1.0.0",
+  "name": "@realmikekelly/react-native-logs-mcp",
+  "description": "An MCP server that connects to your React Native application debugger (fork optimized for AI context efficiency)",
+  "version": "1.0.1",
   "author": {
-    "name": "Two Doors Dev",
-    "email": "hello@twodoors.dev",
-    "url": "https://twodoors.dev",
-    "github": "https://github.com/twodoorsdev"
+    "name": "Mike Kelly",
+    "email": "mikekelly321@gmail.com",
+    "github": "https://github.com/mikekelly"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/twodoorsdev/react-native-debugger-mcp.git"
+    "url": "https://github.com/mikekelly/react-native-logs-mcp.git"
   },
   "module": "main.ts",
   "type": "module",
   "bin": {
-    "react-native-debugger-mcp": "dist/main.js"
+    "react-native-logs-mcp": "dist/main.js"
   },
   "files": [
     "dist"
