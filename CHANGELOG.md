@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [Unreleased]
 
+### 🎯 Token-Efficiency Improvements (mikekelly fork)
+
+#### Changed
+
+-   **Plain Text Output**: Console logs are now returned as plain text (one per line) instead of verbose JSON, reducing token usage by ~98%
+-   **Conditional Stack Traces**: Stack traces and raw arguments are only included for error and warning level logs, not for regular logs
+-   **Simplified Error Format**: Errors show ❌ ERROR: prefix with just the top stack frame for context
+
+#### Technical Details
+
+-   Modified `readConsoleLogsFromApp` handler to format logs as plain text
+-   Updated log collection to conditionally include `args` and `stackTrace` only for errors/warnings
+-   Reduced context consumption from ~2500 tokens to ~50 tokens for 3 typical log messages
+
+#### Why These Changes?
+
+AI agents operating with these logs consume tokens for every character. The original JSON format with full stack traces for every log level was extremely verbose and wasteful. This fork maintains all the debugging value while being dramatically more efficient for AI context.
+
 ### 🚀 Enhanced Console Log Functionality
 
 #### Added

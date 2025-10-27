@@ -19,12 +19,12 @@ export const getConnectedAppsTool: ToolRegistration<GetConnectedAppsSchema> = {
 				);
 			}
 
-			return {
-				content: apps.map((app) => ({
-					type: 'text',
-					text: JSON.stringify(app, null, 2),
-				})),
-			};
+		return {
+			content: apps.map((app) => ({
+				type: 'text',
+				text: JSON.stringify(app, null, 2),
+			})),
+		};
 		} catch (error) {
 			return {
 				content: [

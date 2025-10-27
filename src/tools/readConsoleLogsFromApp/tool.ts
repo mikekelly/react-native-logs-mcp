@@ -136,13 +136,19 @@ export const readConsoleLogsFromApp = async (
 						return;
 					}
 
+					const level = message.params.type || 'log';
+					const isErrorOrWarning = level === 'error' || level === 'warning';
+
 					const logMessage: ConsoleMessage = {
-						type: message.params.type || 'log',
+						type: level,
 						text,
-						level: message.params.type || 'log',
+						level,
 						timestamp: Date.now(),
-						args, // Store raw arguments for potential future use
-						stackTrace: message.params.stackTrace, // Include stack trace if available
+						// Only include args and stackTrace for errors and warnings
+						...(isErrorOrWarning && {
+							args,
+							stackTrace: message.params.stackTrace,
+						}),
 					};
 					logs.push(logMessage);
 
@@ -183,20 +189,38 @@ export const readConsoleLogsFromAppTool: ToolRegistration<ReadConsoleLogsFromApp
 		inputSchema: makeJsonSchema(readConsoleLogsFromAppSchema),
 		handler: async ({ app, maxLogs }: ReadConsoleLogsFromAppSchema) => {
 			try {
-				const parsedArgs = readConsoleLogsFromAppSchema.parse({ app, maxLogs });
-				const logs = await readConsoleLogsFromApp(
-					parsedArgs.app,
-					parsedArgs.maxLogs,
-				);
+			const parsedArgs = readConsoleLogsFromAppSchema.parse({ app, maxLogs });
+			const logs = await readConsoleLogsFromApp(
+				parsedArgs.app,
+				parsedArgs.maxLogs,
+			);
 
-				return {
-					content: [
-						{
-							type: 'text',
-							text: JSON.stringify(logs, null, 2),
-						},
-					],
-				};
+			// Format logs as plain text, one per line
+			// For errors/warnings, include additional context
+			const formattedLogs = logs.map(log => {
+				const prefix = log.level === 'error' ? '❌ ERROR: ' : 
+				               log.level === 'warning' ? '⚠️  WARNING: ' : '';
+				let output = `${prefix}${log.text}`;
+				
+				// For errors and warnings, append stack trace if available
+				if ((log.level === 'error' || log.level === 'warning') && log.stackTrace) {
+					const topFrame = log.stackTrace.callFrames[0];
+					if (topFrame) {
+						output += `\n  at ${topFrame.functionName || 'anonymous'} (line ${topFrame.lineNumber})`;
+					}
+				}
+				
+				return output;
+			}).join('\n');
+
+			return {
+				content: [
+					{
+						type: 'text',
+						text: formattedLogs || 'No logs received',
+					},
+				],
+			};
 			} catch (error) {
 				return {
 					content: [
